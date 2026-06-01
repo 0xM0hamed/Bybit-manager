@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.pyd
+
+# PyInstaller — all build output
+build/
+dist/
+*.spec
+
+# Personal data — never commit this
+accounts_data.json
+
+# Generated icon (built from Bybit.png in CI)
+Bybit.ico
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
