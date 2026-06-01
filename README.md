@@ -5,7 +5,7 @@ A desktop app to track and manage Bybit accounts — costs, deposits, withdrawal
 ![Python](https://img.shields.io/badge/Python-3.11-blue)
 ![PyQt6](https://img.shields.io/badge/PyQt6-6.11-green)
 ![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey)
-[![Build](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/build.yml/badge.svg)](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/build.yml)
+[![Build](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/build.yml/badge.svg)](https://github.com/0xM0hamed/Bybit-manager/actions/workflows/build.yml)
 
 ## Features
 
@@ -27,8 +27,8 @@ No installation needed — just run the `.exe`.
 ## Running from Source
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git
-cd YOUR_REPO
+git clone https://github.com/0xM0hamed/Bybit-manager.git
+cd Bybit-manager
 pip install -r requirements.txt
 python native_desktop_app.py
 ```
