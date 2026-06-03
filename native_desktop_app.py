@@ -125,13 +125,18 @@ class AccountDialog(QDialog):
         self.gmail_input = QLineEdit()
         layout.addWidget(self.gmail_input)
         
+        # Account ID
+        layout.addWidget(QLabel('Account ID'))
+        self.account_id_input = QLineEdit()
+        layout.addWidget(self.account_id_input)
+        
         # Leader
-        layout.addWidget(QLabel('Leader (Phone/Username) *'))
+        layout.addWidget(QLabel('Leader (Phone/Username)'))
         self.leader_input = QLineEdit()
         layout.addWidget(self.leader_input)
         
         # Verifier Name
-        layout.addWidget(QLabel('Verifier Full Name *'))
+        layout.addWidget(QLabel('Verifier Full Name'))
         self.verifier_input = QLineEdit()
         layout.addWidget(self.verifier_input)
         
@@ -188,6 +193,7 @@ class AccountDialog(QDialog):
     def load_account_data(self):
         """Load existing account data into form"""
         self.gmail_input.setText(self.account.get('gmail', ''))
+        self.account_id_input.setText(str(self.account.get('account_id', '')))
         self.leader_input.setText(self.account.get('leader', ''))
         self.verifier_input.setText(self.account.get('verifier_name', ''))
         self.kyc_input.setText(str(self.account.get('kyc_cost', 0)))
@@ -206,17 +212,9 @@ class AccountDialog(QDialog):
     
     def save_account(self):
         """Validate and save account data"""
-        # Validation
-        if not self.gmail_input.text():
+        # Validation — only Gmail and Status are required
+        if not self.gmail_input.text().strip():
             QMessageBox.warning(self, 'Error', 'Gmail address is required')
-            return
-        
-        if not self.leader_input.text():
-            QMessageBox.warning(self, 'Error', 'Leader is required')
-            return
-        
-        if not self.verifier_input.text():
-            QMessageBox.warning(self, 'Error', 'Verifier name is required')
             return
         
         # Get status value
@@ -228,9 +226,10 @@ class AccountDialog(QDialog):
         
         # Create account data
         self.account_data = {
-            'gmail': self.gmail_input.text(),
-            'leader': self.leader_input.text(),
-            'verifier_name': self.verifier_input.text(),
+            'gmail': self.gmail_input.text().strip(),
+            'account_id': self.account_id_input.text().strip(),
+            'leader': self.leader_input.text().strip(),
+            'verifier_name': self.verifier_input.text().strip(),
             'kyc_cost': float(self.kyc_input.text() or 0),
             'selfie_cost': float(self.selfie_input.text() or 0),
             'additional_costs': float(self.additional_input.text() or 0),
@@ -643,9 +642,9 @@ class MainWindow(QMainWindow):
         
         # Table
         self.table = QTableWidget()
-        self.table.setColumnCount(12)
+        self.table.setColumnCount(13)
         self.table.setHorizontalHeaderLabels([
-            'ID', 'Gmail', 'Leader', 'Verifier', 'KYC Cost', 
+            'ID', 'Gmail', 'Account ID', 'Leader', 'Verifier', 'KYC Cost', 
             'Selfie Cost', 'Additional', 'Deposits', 'Withdrawn', 
             'P/L', 'Status', 'Actions'
         ])
@@ -663,34 +662,37 @@ class MainWindow(QMainWindow):
         header.setSectionResizeMode(1, QHeaderView.ResizeMode.Fixed)  # Gmail
         self.table.setColumnWidth(1, 250)
         
-        header.setSectionResizeMode(2, QHeaderView.ResizeMode.Fixed)  # Leader
+        header.setSectionResizeMode(2, QHeaderView.ResizeMode.Fixed)  # Account ID
         self.table.setColumnWidth(2, 120)
         
-        header.setSectionResizeMode(3, QHeaderView.ResizeMode.Fixed)  # Verifier
-        self.table.setColumnWidth(3, 200)
+        header.setSectionResizeMode(3, QHeaderView.ResizeMode.Fixed)  # Leader
+        self.table.setColumnWidth(3, 120)
         
-        header.setSectionResizeMode(4, QHeaderView.ResizeMode.Fixed)  # KYC Cost
-        self.table.setColumnWidth(4, 100)
+        header.setSectionResizeMode(4, QHeaderView.ResizeMode.Fixed)  # Verifier
+        self.table.setColumnWidth(4, 200)
         
-        header.setSectionResizeMode(5, QHeaderView.ResizeMode.Fixed)  # Selfie Cost
+        header.setSectionResizeMode(5, QHeaderView.ResizeMode.Fixed)  # KYC Cost
         self.table.setColumnWidth(5, 100)
         
-        header.setSectionResizeMode(6, QHeaderView.ResizeMode.Fixed)  # Additional
+        header.setSectionResizeMode(6, QHeaderView.ResizeMode.Fixed)  # Selfie Cost
         self.table.setColumnWidth(6, 100)
         
-        header.setSectionResizeMode(7, QHeaderView.ResizeMode.Fixed)  # Deposits
+        header.setSectionResizeMode(7, QHeaderView.ResizeMode.Fixed)  # Additional
         self.table.setColumnWidth(7, 100)
         
-        header.setSectionResizeMode(8, QHeaderView.ResizeMode.Fixed)  # Withdrawn
+        header.setSectionResizeMode(8, QHeaderView.ResizeMode.Fixed)  # Deposits
         self.table.setColumnWidth(8, 100)
         
-        header.setSectionResizeMode(9, QHeaderView.ResizeMode.Fixed)  # P/L
+        header.setSectionResizeMode(9, QHeaderView.ResizeMode.Fixed)  # Withdrawn
         self.table.setColumnWidth(9, 100)
         
-        header.setSectionResizeMode(10, QHeaderView.ResizeMode.Stretch)  # Status - stretch to fill
+        header.setSectionResizeMode(10, QHeaderView.ResizeMode.Fixed)  # P/L
+        self.table.setColumnWidth(10, 100)
         
-        header.setSectionResizeMode(11, QHeaderView.ResizeMode.Fixed)  # Actions
-        self.table.setColumnWidth(11, 200)
+        header.setSectionResizeMode(11, QHeaderView.ResizeMode.Stretch)  # Status - stretch to fill
+        
+        header.setSectionResizeMode(12, QHeaderView.ResizeMode.Fixed)  # Actions
+        self.table.setColumnWidth(12, 200)
         
         self.table.setAlternatingRowColors(True)
         self.table.setStyleSheet("""
@@ -776,18 +778,21 @@ class MainWindow(QMainWindow):
             # Gmail
             self.table.setItem(row, 1, QTableWidgetItem(account.get('gmail', '')))
             
+            # Account ID
+            self.table.setItem(row, 2, QTableWidgetItem(account.get('account_id', '')))
+            
             # Leader
-            self.table.setItem(row, 2, QTableWidgetItem(account.get('leader', '')))
+            self.table.setItem(row, 3, QTableWidgetItem(account.get('leader', '')))
             
             # Verifier
-            self.table.setItem(row, 3, QTableWidgetItem(account.get('verifier_name', '')))
+            self.table.setItem(row, 4, QTableWidgetItem(account.get('verifier_name', '')))
             
             # Costs and amounts
-            self.table.setItem(row, 4, QTableWidgetItem(f"${account.get('kyc_cost', 0):.2f}"))
-            self.table.setItem(row, 5, QTableWidgetItem(f"${account.get('selfie_cost', 0):.2f}"))
-            self.table.setItem(row, 6, QTableWidgetItem(f"${account.get('additional_costs', 0):.2f}"))
-            self.table.setItem(row, 7, QTableWidgetItem(f"${account.get('deposits', 0):.2f}"))
-            self.table.setItem(row, 8, QTableWidgetItem(f"${account.get('withdrawn', 0):.2f}"))
+            self.table.setItem(row, 5, QTableWidgetItem(f"${account.get('kyc_cost', 0):.2f}"))
+            self.table.setItem(row, 6, QTableWidgetItem(f"${account.get('selfie_cost', 0):.2f}"))
+            self.table.setItem(row, 7, QTableWidgetItem(f"${account.get('additional_costs', 0):.2f}"))
+            self.table.setItem(row, 8, QTableWidgetItem(f"${account.get('deposits', 0):.2f}"))
+            self.table.setItem(row, 9, QTableWidgetItem(f"${account.get('withdrawn', 0):.2f}"))
             
             # P/L
             pl = AccountManager.calculate_profit_loss(account)
@@ -802,7 +807,7 @@ class MainWindow(QMainWindow):
                 pl_item.setForeground(QColor('#dc2626'))  # Bright Red
                 pl_item.setBackground(QColor('#fee2e2'))  # Light Red background
             
-            self.table.setItem(row, 9, pl_item)
+            self.table.setItem(row, 10, pl_item)
             
             # Status
             status = account.get('status', 'in_progress')
@@ -826,7 +831,7 @@ class MainWindow(QMainWindow):
                 status_item.setForeground(QColor('#dc2626'))  # Bright Red (same as loss)
                 status_item.setBackground(QColor('#fee2e2'))  # Light Red background (same as loss)
             
-            self.table.setItem(row, 10, status_item)
+            self.table.setItem(row, 11, status_item)
             
             # Actions
             actions_widget = QWidget()
@@ -873,7 +878,7 @@ class MainWindow(QMainWindow):
             actions_layout.addWidget(delete_btn)
             
             actions_widget.setLayout(actions_layout)
-            self.table.setCellWidget(row, 11, actions_widget)
+            self.table.setCellWidget(row, 12, actions_widget)
     
     def filter_accounts(self, filter_type):
         """Filter accounts by status"""
